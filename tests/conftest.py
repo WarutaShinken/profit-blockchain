@@ -4,6 +4,8 @@ import pytest
 import pytest_asyncio
 import tempfile
 
+from typing import Any, AsyncIterator, Dict
+
 # Set spawn after stdlib imports, but before other imports
 multiprocessing.set_start_method("spawn")
 
@@ -128,3 +130,12 @@ def default_10000_blocks_compact(bt):
 def tmp_dir():
     with tempfile.TemporaryDirectory() as folder:
         yield Path(folder)
+
+
+@pytest.fixture(scope="function")
+async def farmer_multi_harvester(request: pytest.FixtureRequest, tmp_path: Path, bt: BlockTools) -> AsyncIterator:
+    from tests.setup_nodes import setup_farmer_multi_harvester, test_constants
+
+    marker = request.node.get_closest_marker("harvesters")
+    async for _ in setup_farmer_multi_harvester(bt, self_hostname, marker.kwargs["count"], tmp_path, test_constants):
+        yield _
