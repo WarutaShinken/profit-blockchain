@@ -3,7 +3,9 @@ import multiprocessing
 import pytest
 import pytest_asyncio
 import tempfile
-
+from pathlib import Path
+from typing import AsyncIterator, List, Tuple
+from chia.server.start_service import Service
 from typing import Any, AsyncIterator, Dict
 
 # Set spawn after stdlib imports, but before other imports
@@ -133,7 +135,7 @@ def tmp_dir():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def farmer_multi_harvester(request: pytest.FixtureRequest, tmp_path: Path, bt: BlockTools) -> AsyncIterator:
+async def farmer_multi_harvester(request: pytest.FixtureRequest, tmp_path: Path, bt: BlockTools) -> AsyncIterator[Tuple[List[Service], Service]]:
     from tests.setup_nodes import setup_farmer_multi_harvester, test_constants
 
     marker = request.node.get_closest_marker("harvesters")
