@@ -5,6 +5,8 @@ import pytest_asyncio
 import tempfile
 
 # Set spawn after stdlib imports, but before other imports
+from tests.setup_nodes import setup_node_and_wallet
+
 multiprocessing.set_start_method("spawn")
 
 from pathlib import Path
@@ -128,3 +130,9 @@ def default_10000_blocks_compact():
 def tmp_dir():
     with tempfile.TemporaryDirectory() as folder:
         yield Path(folder)
+
+
+@pytest_asyncio.fixture(scope="function")
+async def wallet_node(self_hostname):
+    async for _ in setup_node_and_wallet(test_constants, self_hostname):
+        yield _

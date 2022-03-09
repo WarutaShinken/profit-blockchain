@@ -13,7 +13,7 @@ from chia.util.ints import uint16, uint32
 from chia.wallet.wallet_state_manager import WalletStateManager
 from tests.connection_utils import disconnect_all_and_reconnect
 from tests.pools.test_pool_rpc import wallet_is_synced
-from tests.setup_nodes import setup_node_and_wallet, setup_simulators_and_wallets, test_constants
+from tests.setup_nodes import setup_simulators_and_wallets, test_constants
 from tests.time_out_assert import time_out_assert
 
 
@@ -34,20 +34,8 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def wallet_node(self_hostname):
-    async for _ in setup_node_and_wallet(test_constants, self_hostname):
-        yield _
-
-
-@pytest_asyncio.fixture(scope="function")
 async def wallet_node_simulator():
     async for _ in setup_simulators_and_wallets(1, 1, {}):
-        yield _
-
-
-@pytest_asyncio.fixture(scope="function")
-async def wallet_node_starting_height(self_hostname):
-    async for _ in setup_node_and_wallet(test_constants, self_hostname, starting_height=100):
         yield _
 
 
