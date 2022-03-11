@@ -24,9 +24,10 @@ from chia.types.unfinished_block import UnfinishedBlock
 from chia.util import cached_bls
 from chia.util.condition_tools import pkm_pairs
 from chia.util.errors import Err
-from chia.util.generator_tools import additions_for_spend, tx_removals_and_additions
 from chia.util.hash import std_hash
 from chia.util.ints import uint32, uint64
+
+from .util.generator_tools import tx_removals_and_additions
 
 log = logging.getLogger(__name__)
 
@@ -208,7 +209,8 @@ async def validate_block_body(
         for spend in npc_result.conds.spends:
             removals.append(spend.coin_id)
             removals_puzzle_dic[spend.coin_id] = spend.puzzle_hash
-            additions.extend(additions_for_spend(spend))
+            for puzzle_hash, amount, _ in spend.create_coin:
+                additions.append(Coin(spend.coin_id, puzzle_hash, uint64(amount)))
     else:
         assert npc_result is None
 
