@@ -270,6 +270,9 @@ class SerializedProgram:
             assert err != 0
             return err, None
 
+        # for now, we need to copy this data into python objects, in order to
+        # support streamable. This will become simpler and faster once we can
+        # implement streamable in rust
         spends = []
         for s in conds.spends:
             spends.append(
