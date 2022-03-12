@@ -122,7 +122,7 @@ async def setup_full_node(
         service_name_prefix="test_",
     )
 
-    service = Service(**kwargs, handle_signals=False)
+    service = Service(**kwargs, running_new_process=False)
 
     await service.start()
 
@@ -193,7 +193,7 @@ async def setup_wallet_node(
             service_name_prefix="test_",
         )
 
-        service = Service(**kwargs, handle_signals=False)
+        service = Service(**kwargs, running_new_process=False)
 
         await service.start()
 
@@ -229,7 +229,7 @@ async def setup_harvester(
         service_name_prefix="test_",
     )
 
-    service = Service(**kwargs, handle_signals=False)
+    service = Service(**kwargs, running_new_process=False)
 
     if start_service:
         await service.start()
@@ -273,7 +273,7 @@ async def setup_farmer(
         service_name_prefix="test_",
     )
 
-    service = Service(**kwargs, handle_signals=False)
+    service = Service(**kwargs, running_new_process=False)
 
     if start_service:
         await service.start()
@@ -296,7 +296,7 @@ async def setup_introducer(bt: BlockTools, port):
         service_name_prefix="test_",
     )
 
-    service = Service(**kwargs, handle_signals=False)
+    service = Service(**kwargs, running_new_process=False)
 
     await service.start()
 
@@ -354,7 +354,7 @@ async def setup_timelord(
         service_name_prefix="test_",
     )
 
-    service = Service(**kwargs, handle_signals=False)
+    service = Service(**kwargs, running_new_process=False)
 
     await service.start()
 
