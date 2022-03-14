@@ -2,9 +2,9 @@ from typing import List
 
 from blspy import AugSchemeMPL, G2Element, PrivateKey
 
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.coin_spend import CoinSpend
-from chia.util.condition_tools import conditions_by_opcode, conditions_for_solution, pkm_pairs_for_conditions_dict
+from profit.types.blockchain_format.sized_bytes import bytes32
+from profit.types.coin_spend import CoinSpend
+from profit.util.condition_tools import conditions_by_opcode, conditions_for_solution, pkm_pairs_for_conditions_dict
 from tests.core.make_block_generator import GROUP_ORDER, int_to_public_key
 from tests.block_tools import test_constants
 
@@ -35,9 +35,6 @@ class KeyTool(dict):
         for public_key, message_hash in pkm_pairs_for_conditions_dict(
             conditions_dict, coin_spend.coin.name(), additional_data
         ):
-            # TODO: address hint error and remove ignore
-            #       error: Argument 2 to "sign" of "KeyTool" has incompatible type "bytes"; expected "bytes32"
-            #       [arg-type]
-            signature = self.sign(public_key, message_hash)  # type: ignore[arg-type]
+            signature = self.sign(public_key, message_hash)
             signatures.append(signature)
         return AugSchemeMPL.aggregate(signatures)

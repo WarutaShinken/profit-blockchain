@@ -2,11 +2,11 @@ import pytest
 
 from blspy import G2Element
 
-from chia.clvm.spend_sim import SpendSim, SimClient
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.blockchain_format.program import Program
-from chia.types.spend_bundle import SpendBundle
-from chia.types.coin_spend import CoinSpend
+from profit.clvm.spend_sim import SpendSim, SimClient
+from profit.types.blockchain_format.sized_bytes import bytes32
+from profit.types.blockchain_format.program import Program
+from profit.types.spend_bundle import SpendBundle
+from profit.types.coin_spend import CoinSpend
 
 
 class TestSpendSim:
@@ -137,11 +137,5 @@ class TestSimClient:
             # get_puzzle_and_solution
             coin_solution = await sim_client.get_puzzle_and_solution(spendable_coin.name(), latest_block.height)
             assert coin_solution
-
-            # get_coin_records_by_parent_ids
-            new_coin = next(x.coin for x in additions if x.coin.puzzle_hash == puzzle_hash)
-            coin_records = await sim_client.get_coin_records_by_parent_ids([spendable_coin.name()])
-            assert coin_records[0].coin.name() == new_coin.name()
-
         finally:
             await sim.close()

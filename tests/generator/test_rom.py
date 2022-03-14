@@ -1,24 +1,23 @@
-from clvm.casts import int_to_bytes
 from clvm_tools import binutils
 from clvm_tools.clvmc import compile_clvm_text
 
-from chia.full_node.generator import run_generator_unsafe
-from chia.full_node.mempool_check_conditions import get_name_puzzle_conditions
-from chia.types.blockchain_format.program import Program, SerializedProgram
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.condition_opcodes import ConditionOpcode
-from chia.types.condition_with_args import ConditionWithArgs
-from chia.types.name_puzzle_condition import NPC
-from chia.types.generator_types import BlockGenerator
-from chia.util.ints import uint32
-from chia.wallet.puzzles.load_clvm import load_clvm
-from chia.consensus.condition_costs import ConditionCost
+from profit.full_node.generator import run_generator
+from profit.full_node.mempool_check_conditions import get_name_puzzle_conditions
+from profit.types.blockchain_format.program import Program, SerializedProgram
+from profit.types.blockchain_format.sized_bytes import bytes32
+from profit.types.condition_with_args import ConditionWithArgs
+from profit.types.name_puzzle_condition import NPC
+from profit.types.generator_types import BlockGenerator, GeneratorArg
+from profit.util.clvm import int_to_bytes
+from profit.util.condition_tools import ConditionOpcode
+from profit.util.ints import uint32
+from profit.wallet.puzzles.load_clvm import load_clvm
 
 MAX_COST = int(1e15)
 COST_PER_BYTE = int(12000)
 
 
-DESERIALIZE_MOD = load_clvm("chialisp_deserialisation.clvm", package_or_requirement="chia.wallet.puzzles")
+DESERIALIZE_MOD = load_clvm("chialisp_deserialisation.clvm", package_or_requirement="profit.wallet.puzzles")
 
 
 GENERATOR_CODE = """
@@ -69,9 +68,8 @@ def to_sp(sexp) -> SerializedProgram:
 
 
 def block_generator() -> BlockGenerator:
-    generator_list = [to_sp(FIRST_GENERATOR), to_sp(SECOND_GENERATOR)]
-    generator_heights = [uint32(0), uint32(1)]
-    return BlockGenerator(to_sp(COMPILED_GENERATOR_CODE), generator_list, generator_heights)
+    generator_args = [GeneratorArg(uint32(0), to_sp(FIRST_GENERATOR)), GeneratorArg(uint32(1), to_sp(SECOND_GENERATOR))]
+    return BlockGenerator(to_sp(COMPILED_GENERATOR_CODE), generator_args)
 
 
 EXPECTED_ABBREVIATED_COST = 108379
@@ -95,21 +93,17 @@ class TestROM:
         assert cost == EXPECTED_ABBREVIATED_COST
         assert r.as_bin().hex() == EXPECTED_OUTPUT
 
-    def test_get_name_puzzle_conditions(self, softfork_height):
+    def test_get_name_puzzle_conditions(self):
         # this tests that extra block or coin data doesn't confuse `get_name_puzzle_conditions`
 
         gen = block_generator()
-        cost, r = run_generator_unsafe(gen, max_cost=MAX_COST)
+        cost, r = run_generator(gen, max_cost=MAX_COST)
         print(r)
 
-        npc_result = get_name_puzzle_conditions(
-            gen, max_cost=MAX_COST, cost_per_byte=COST_PER_BYTE, mempool_mode=False, height=softfork_height
-        )
+        npc_result = get_name_puzzle_conditions(gen, max_cost=MAX_COST, cost_per_byte=COST_PER_BYTE, safe_mode=False)
         assert npc_result.error is None
-        assert npc_result.cost == EXPECTED_COST + ConditionCost.CREATE_COIN.value + (
-            len(bytes(gen.program)) * COST_PER_BYTE
-        )
-        cond_1 = ConditionWithArgs(ConditionOpcode.CREATE_COIN, [bytes([0] * 31 + [1]), int_to_bytes(500)])
+        assert npc_result.clvm_cost == EXPECTED_COST
+        cond_1 = ConditionWithArgs(ConditionOpcode.CREATE_COIN, [bytes([0] * 31 + [1]), int_to_bytes(500), b""])
         CONDITIONS = [
             (ConditionOpcode.CREATE_COIN, [cond_1]),
         ]
@@ -126,7 +120,7 @@ class TestROM:
         # the ROM supports extra data after a coin. This test checks that it actually gets passed through
 
         gen = block_generator()
-        cost, r = run_generator_unsafe(gen, max_cost=MAX_COST)
+        cost, r = run_generator(gen, max_cost=MAX_COST)
         coin_spends = r.first()
         for coin_spend in coin_spends.as_iter():
             extra_data = coin_spend.rest().rest().rest().rest()
@@ -136,6 +130,6 @@ class TestROM:
         # the ROM supports extra data after the coin spend list. This test checks that it actually gets passed through
 
         gen = block_generator()
-        cost, r = run_generator_unsafe(gen, max_cost=MAX_COST)
+        cost, r = run_generator(gen, max_cost=MAX_COST)
         extra_block_data = r.rest()
         assert extra_block_data.as_atom_list() == b"extra data for block".split()

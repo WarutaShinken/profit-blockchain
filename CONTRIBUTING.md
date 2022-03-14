@@ -1,13 +1,13 @@
 # Introduction
 
-Welcome to the chia-blockchain project!
-We are happy that you are taking a look at the code for Chia, a proof of space and time cryptocurrency.
+Welcome to the profit-blockchain project!
+We are happy that you are taking a look at the code for Profit, a proof of space and time cryptocurrency.
 
 A lot of fascinating new cryptography and blockchain concepts are used and implemented here.
-This repo includes the code for the Chia full node, farmer, and timelord (in chia folder), which are all written in python.
-It also includes a verifiable delay function implementation that it imports from the [chiavdf repo](https://github.com/Chia-Network/chiavdf) (in c/c++), and a proof of space implementation that it imports from the [chiapos repo](https://github.com/Chia-Network/chiapos). BLS signatures are imported from the [bls-signatures repo](https://github.com/Chia-Network/bls-signatures) as blspy. There is an additional dependency on the [chiabip158 repo](https://github.com/Chia-Network/chiabip158). For major platforms, binary and source wheels are shipped to PyPI from each dependent repo. Then chia-blockchain can pip install those from PyPI or they can be prepackaged as is done for the Windows installer. On unsupported platforms, pip will fall back to the source distributions, to be compiled locally.
+This repo includes the code for the Profit full node, farmer, and timelord (in profit folder), which are all written in python.
+It also includes a verifiable delay function implementation that it imports from the [chiavdf repo](https://github.com/ProfitCrypto/chiavdf) (in c/c++), and a proof of space implementation that it imports from the [chiapos repo](https://github.com/ProfitCrypto/chiapos). BLS signatures are imported from the [bls-signatures repo](https://github.com/ProfitCrypto/bls-signatures) as blspy. There is an additional dependency on the [chiabip158 repo](https://github.com/ProfitCrypto/chiabip158). For major platforms, binary and source wheels are shipped to PyPI from each dependent repo. Then profit-blockchain can pip install those from PyPI or they can be prepackaged as is done for the Windows installer. On unsupported platforms, pip will fall back to the source distributions, to be compiled locally.
 
-If you want to learn more about this project, read the [wiki](https://github.com/Chia-Network/chia-blockchain/wiki), or check out the [green paper](https://www.chia.net/assets/ChiaGreenPaper.pdf).
+If you want to learn more about this project, read the [wiki](https://github.com/ProfitCrypto/profit-blockchain/wiki), or check out the [green paper](https://www.profitcrypto.net/assets/ProfitGreenPaper.pdf).
 
 ## Contributions
 
@@ -19,13 +19,13 @@ You can visit our [Trello project board](https://trello.com/b/ZuNx7sET) to get a
 Generally, things to the left are in progress or done. Some things go through "Coming up soon", but some will come directly out of other columns.
 Usually, the things closer to the top of each column are the ones that will be worked on soonest.
 If you are interested in cryptography, math, or just like hacking in python, there are many interesting problems to work on.
-Contact any of the team members on [Keybase](https://keybase.io/team/chia_network.public), which we use as the main communication method. You can also comment on any Trello card.
+Contact any of the team members on [Keybase](https://keybase.io/team/profit_network.public), which we use as the main communication method. You can also comment on any Trello card.
 
 We ask that external contributors create a fork of the `main` branch for any feature work they wish to take on.
 
-Members of the Chia organization may create feature branches from the `main` branch.
+Members of the Profit organization may create feature branches from the `main` branch.
 
-In the event an emergency fix is required for the release version of Chia, members of the Chia organization will create a feature branch from the current release branch `1.0.0`.
+In the event an emergency fix is required for the release version of Profit, members of the Profit organization will create a feature branch from the current release branch `1.0.0`.
 
 ## Branching Strategy
 
@@ -34,7 +34,7 @@ In the event an emergency fix is required for the release version of Chia, membe
 1. All changes go into the main branch.
 2. Main is stable at all times, all tests pass.
 3. Features (with tests) are developed and fully tested on feature branches, and reviewed before landing in main.
-4. Chia Network's nodes on the public testnet are running the latest version `x.y.z`.
+4. Profit Network's nodes on the public testnet are running the latest version `x.y.z`.
 5. The `main` branch will have a long running `beta testnet` to allow previewing of changes.
 6. Pull Request events may require a `beta testnet` review environment. At the moment this is at the discretion of the reviewer.
 7. Hotfixes land in the release branch they fix, and all later versions. (This will be achieved by regularly merging from `1.0.x` to main).
@@ -51,20 +51,19 @@ proofs of space during testing. The next time tests are run, this will not be ne
 ```bash
 . ./activate
 pip install ".[dev]"
-black chia tests && mypy chia tests && flake8 chia tests
+black profit tests && mypy profit tests && flake8 profit tests
 py.test tests -v --durations 0
 ```
 
 The [black library](https://black.readthedocs.io/en/stable/) is used as an automatic style formatter to make things easier.
 The [flake8 library](https://readthedocs.org/projects/flake8/) helps ensure consistent style.
 The [Mypy library](https://mypy.readthedocs.io/en/stable/) is very useful for ensuring objects are of the correct type, so try to always add the type of the return value, and the type of local variables.
-The [isort library](https://isort.readthedocs.io) is used to sort, group and validate imports in all python files.
 
 If you want verbose logging for tests, edit the `tests/pytest.ini` file.
 
 ## Pre-Commit
 
-We provide a [pre-commit configuration](https://github.com/Chia-Network/chia-blockchain/blob/main/.pre-commit-config.yaml) which triggers several useful
+We provide a [pre-commit configuration](https://github.com/ProfitCrypto/profit-blockchain/blob/main/.pre-commit-config.yaml) which triggers several useful
 hooks (including linters/formatter) before each commit you make if you installed and set up [pre-commit](https://pre-commit.com/). This will help
 to reduce the time you spend on failed CI jobs.
 
@@ -80,7 +79,7 @@ provided configuration with `pre-commit install`.
 4. Preferences > Settings > Python > Linting > flake8 enabled
 5. Preferences > Settings > Python > Linting > mypy enabled
 6. Preferences > Settings > Formatting > Python > Provider > black
-7. Preferences > Settings > mypy > Targets: set to `./chia` and `./tests`
+7. Preferences > Settings > mypy > Targets: set to `./profit` and `./tests`
 
 ## Configure Pycharm
 
@@ -93,24 +92,24 @@ workflow.
 3. Install BlackConnect plugin
 4. Set to run python black on save
 5. Set line length to 120
-6. Install these linters https://github.com/Chia-Network/chia-blockchain/tree/main/.github/linters
+6. Install these linters https://github.com/ProfitCrypto/profit-blockchain/tree/main/.github/linters
 
 ## Testnets and review environments
 
 With the launch of `1.0.0` we will begin running an official `testnet`.
-Prior to the release of `1.1.0` there will be two running test nets. `testnet` and `transaction-beta-testnet`. The `transaction-beta-testnet` testnet will be a beta of the pending 1.1 release, which will enable transactions on the chia blockchain.
+Prior to the release of `1.1.0` there will be two running test nets. `testnet` and `transaction-beta-testnet`. The `transaction-beta-testnet` testnet will be a beta of the pending 1.1 release, which will enable transactions on the profit blockchain.
 Following the release of `1.1.0`, the official `testnet` will include all changes that have been accepted to the current release branch.
 
 Prior to proposing changes to `main`, proposers should consider if running a `beta testnet` review environment will make the reviewer more effective when evaluating a change.
 Changes that impact the blockchain could require a review environment before acceptance into `main`. This is at the discretion of the reviewer.
-Chia organization members have been granted CI access to deploy `beta testnets`.
-If you are not a Chia organization member, you can enquire about deploying a `beta testnet` in the public dev Keybase channel.
+Profit organization members have been granted CI access to deploy `beta testnets`.
+If you are not a Profit organization member, you can enquire about deploying a `beta testnet` in the public dev Keybase channel.
 
 ## Submit changes
 
 To propose changes, please make a pull request to the `main` branch. See Branching Strategy above.
 
-To propose changes for the production releases of Chia, please make a pull request to the latest release branch.
+To propose changes for the production releases of Profit, please make a pull request to the latest release branch.
 
 ## Copyright
 

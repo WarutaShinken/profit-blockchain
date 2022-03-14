@@ -5,9 +5,15 @@ from asyncio import CancelledError
 
 import pytest
 
-from chia.full_node.lock_queue import LockQueue, LockClient
+from profit.full_node.lock_queue import LockQueue, LockClient
 
 log = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    loop = asyncio.get_event_loop()
+    yield loop
 
 
 class TestLockQueue:

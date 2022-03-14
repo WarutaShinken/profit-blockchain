@@ -1,15 +1,15 @@
 from pytest import raises
 
-from chia.consensus.default_constants import DEFAULT_CONSTANTS
-from chia.consensus.pos_quality import _expected_plot_size
-from chia.consensus.pot_iterations import (
+from profit.consensus.default_constants import DEFAULT_CONSTANTS
+from profit.consensus.pos_quality import _expected_plot_size
+from profit.consensus.pot_iterations import (
     calculate_ip_iters,
     calculate_iterations_quality,
     calculate_sp_iters,
     is_overflow_block,
 )
-from chia.util.hash import std_hash
-from chia.util.ints import uint8, uint64
+from profit.util.hash import std_hash
+from profit.util.ints import uint8, uint64
 
 test_constants = DEFAULT_CONSTANTS.replace(**{"NUM_SPS_SUB_SLOT": 32, "SUB_SLOT_TIME_TARGET": 300})
 
@@ -104,7 +104,7 @@ class TestPotIterations:
                 for k, count in farmer_ks.items():
                     for farmer_index in range(count):
                         quality = std_hash(slot_index.to_bytes(4, "big") + k.to_bytes(1, "big") + bytes(farmer_index))
-                        required_iters = calculate_iterations_quality(2 ** 25, quality, k, difficulty, sp_hash)
+                        required_iters = calculate_iterations_quality(2 ** 25, quality, k, difficulty, 0, sp_hash)
                         if required_iters < sp_interval_iters:
                             wins[k] += 1
                             total_wins_in_slot += 1

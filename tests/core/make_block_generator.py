@@ -2,15 +2,15 @@ from typing import Dict
 
 import blspy
 
-from chia.full_node.bundle_tools import simple_solution_generator
-from chia.types.blockchain_format.coin import Coin
-from chia.types.blockchain_format.program import Program
-from chia.types.coin_spend import CoinSpend
-from chia.types.condition_opcodes import ConditionOpcode
-from chia.types.generator_types import BlockGenerator
-from chia.types.spend_bundle import SpendBundle
-from chia.util.ints import uint64
-from chia.wallet.puzzles.p2_delegated_puzzle_or_hidden_puzzle import puzzle_for_pk, solution_for_conditions
+from profit.full_node.bundle_tools import simple_solution_generator
+from profit.types.blockchain_format.coin import Coin
+from profit.types.blockchain_format.program import Program
+from profit.types.coin_spend import CoinSpend
+from profit.types.condition_opcodes import ConditionOpcode
+from profit.types.generator_types import BlockGenerator
+from profit.types.spend_bundle import SpendBundle
+from profit.util.ints import uint64
+from profit.wallet.puzzles.p2_delegated_puzzle_or_hidden_puzzle import puzzle_for_pk, solution_for_conditions
 
 GROUP_ORDER = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001
 
@@ -37,10 +37,7 @@ def make_fake_coin(index: int, puzzle_hash_db: dict) -> Coin:
     parent = index.to_bytes(32, "big")
     puzzle_hash = puzzle_hash_for_index(index, puzzle_hash_db)
     amount = 100000
-    # TODO: address hint error and remove ignore
-    #       error: Argument 1 to "Coin" has incompatible type "bytes"; expected "bytes32"  [arg-type]
-    #       error: Argument 2 to "Coin" has incompatible type "bytes"; expected "bytes32"  [arg-type]
-    return Coin(parent, puzzle_hash, uint64(amount))  # type: ignore[arg-type]
+    return Coin(parent, puzzle_hash, uint64(amount))
 
 
 def conditions_for_payment(coin) -> Program:

@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-from chia.util.keyring_wrapper import KeyringWrapper, DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE
+from profit.util.keyring_wrapper import KeyringWrapper, DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE
 from pathlib import Path
 from sys import platform
 from tests.util.keyring import using_temp_file_keyring, using_temp_file_keyring_and_cryptfilekeyring
@@ -9,14 +9,13 @@ from tests.util.keyring import using_temp_file_keyring, using_temp_file_keyring_
 log = logging.getLogger(__name__)
 
 
-@pytest.fixture(autouse=True, scope="function")
-def setup_keyring_wrapper():
-    yield
-    KeyringWrapper.cleanup_shared_instance()
-    assert KeyringWrapper.get_shared_instance(create_if_necessary=False) is None
-
-
 class TestKeyringWrapper:
+    @pytest.fixture(autouse=True, scope="function")
+    def setup_keyring_wrapper(self):
+        yield
+        KeyringWrapper.cleanup_shared_instance()
+        assert KeyringWrapper.get_shared_instance(create_if_necessary=False) is None
+
     def test_shared_instance(self):
         """
         Using KeyringWrapper's get_shared_instance() method should return the same
@@ -39,7 +38,6 @@ class TestKeyringWrapper:
 
     # When: creating a new file keyring with a legacy keyring in place
     @using_temp_file_keyring_and_cryptfilekeyring()
-    @pytest.mark.skip(reason="Does only work if `test_keyring_wrapper.py` gets called separately.")
     def test_using_legacy_cryptfilekeyring(self):
         """
         In the case that an existing CryptFileKeyring (legacy) keyring exists and we're

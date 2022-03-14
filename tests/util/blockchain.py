@@ -4,30 +4,33 @@ from pathlib import Path
 from typing import List
 
 import aiosqlite
-import tempfile
 
-from chia.consensus.blockchain import Blockchain
-from chia.consensus.constants import ConsensusConstants
-from chia.full_node.block_store import BlockStore
-from chia.full_node.coin_store import CoinStore
-from chia.full_node.hint_store import HintStore
-from chia.types.full_block import FullBlock
-from chia.util.db_wrapper import DBWrapper
-from chia.util.path import mkdir
-from tests.block_tools import BlockTools
+from profit.consensus.blockchain import Blockchain
+from profit.consensus.constants import ConsensusConstants
+from profit.full_node.block_store import BlockStore
+from profit.full_node.coin_store import CoinStore
+from profit.full_node.hint_store import HintStore
+from profit.types.full_block import FullBlock
+from profit.util.db_wrapper import DBWrapper
+from profit.util.path import mkdir
+
+from tests.setup_nodes import bt
+
+blockchain_db_counter: int = 0
 
 
-async def create_blockchain(constants: ConsensusConstants, db_version: int):
-    db_path = Path(tempfile.NamedTemporaryFile().name)
-
+async def create_blockchain(constants: ConsensusConstants):
+    global blockchain_db_counter
+    db_path = Path(f"blockchain_test-{blockchain_db_counter}.db")
     if db_path.exists():
         db_path.unlink()
+    blockchain_db_counter += 1
     connection = await aiosqlite.connect(db_path)
-    wrapper = DBWrapper(connection, db_version)
+    wrapper = DBWrapper(connection)
     coin_store = await CoinStore.create(wrapper)
     store = await BlockStore.create(wrapper)
     hint_store = await HintStore.create(wrapper)
-    bc1 = await Blockchain.create(coin_store, store, constants, hint_store, Path("."), 2)
+    bc1 = await Blockchain.create(coin_store, store, constants, hint_store)
     assert bc1.get_peak() is None
     return bc1, connection, db_path
 
@@ -35,7 +38,6 @@ async def create_blockchain(constants: ConsensusConstants, db_version: int):
 def persistent_blocks(
     num_of_blocks: int,
     db_name: str,
-    bt: BlockTools,
     seed: bytes = b"",
     empty_sub_slots=0,
     normalized_to_identity_cc_eos: bool = False,
@@ -45,8 +47,8 @@ def persistent_blocks(
 ):
     # try loading from disc, if not create new blocks.db file
     # TODO hash fixtures.py and blocktool.py, add to path, delete if the files changed
-    block_path_dir = Path("~/.chia/blocks").expanduser()
-    file_path = Path(f"~/.chia/blocks/{db_name}").expanduser()
+    block_path_dir = Path("~/.profit/blocks").expanduser()
+    file_path = Path(f"~/.profit/blocks/{db_name}").expanduser()
     if not path.exists(block_path_dir):
         mkdir(block_path_dir.parent)
         mkdir(block_path_dir)
@@ -69,7 +71,6 @@ def persistent_blocks(
         num_of_blocks,
         seed,
         empty_sub_slots,
-        bt,
         normalized_to_identity_cc_eos,
         normalized_to_identity_icc_eos,
         normalized_to_identity_cc_sp,
@@ -82,7 +83,6 @@ def new_test_db(
     num_of_blocks: int,
     seed: bytes,
     empty_sub_slots: int,
-    bt: BlockTools,
     normalized_to_identity_cc_eos: bool = False,  # CC_EOS,
     normalized_to_identity_icc_eos: bool = False,  # ICC_EOS
     normalized_to_identity_cc_sp: bool = False,  # CC_SP,

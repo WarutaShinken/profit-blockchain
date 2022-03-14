@@ -2,16 +2,16 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from typing import Dict, Iterator, Optional
 
-from chia.util.condition_tools import created_outputs_for_conditions_dict
-from chia.full_node.mempool_check_conditions import mempool_check_conditions_dict, get_name_puzzle_conditions
-from chia.types.blockchain_format.coin import Coin
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.coin_record import CoinRecord
-from chia.types.spend_bundle import SpendBundle
-from chia.util.ints import uint32, uint64
-from chia.full_node.bundle_tools import simple_solution_generator
-from chia.util.errors import Err
-from chia.consensus.cost_calculator import NPCResult
+from profit.util.condition_tools import created_outputs_for_conditions_dict
+from profit.full_node.mempool_check_conditions import mempool_check_conditions_dict, get_name_puzzle_conditions
+from profit.types.blockchain_format.coin import Coin
+from profit.types.blockchain_format.sized_bytes import bytes32
+from profit.types.coin_record import CoinRecord
+from profit.types.spend_bundle import SpendBundle
+from profit.util.ints import uint32, uint64
+from profit.full_node.bundle_tools import simple_solution_generator
+from profit.util.errors import Err
+from profit.consensus.cost_calculator import NPCResult
 
 
 MAX_COST = 11000000000
@@ -64,9 +64,7 @@ class CoinStore:
         # this should use blockchain consensus code
 
         program = simple_solution_generator(spend_bundle)
-        result: NPCResult = get_name_puzzle_conditions(
-            program, max_cost, cost_per_byte=cost_per_byte, mempool_mode=True
-        )
+        result: NPCResult = get_name_puzzle_conditions(program, max_cost, cost_per_byte=cost_per_byte, safe_mode=True)
         if result.error is not None:
             raise BadSpendBundleError(f"condition validation failure {Err(result.error)}")
 
@@ -78,6 +76,7 @@ class CoinStore:
                     coin,
                     uint32(now.height),
                     uint32(0),
+                    False,
                     False,
                     uint64(now.seconds),
                 )
@@ -116,7 +115,7 @@ class CoinStore:
         for spent_coin in removals:
             coin_name = spent_coin.name()
             coin_record = self._db[coin_name]
-            self._db[coin_name] = replace(coin_record, spent_block_index=now.height)
+            self._db[coin_name] = replace(coin_record, spent_block_index=now.height, spent=True)
         return additions, spend_bundle.coin_spends
 
     def coins_for_puzzle_hash(self, puzzle_hash: bytes32) -> Iterator[Coin]:
@@ -141,6 +140,7 @@ class CoinStore:
             coin,
             uint32(birthday.height),
             uint32(0),
+            False,
             False,
             uint64(birthday.seconds),
         )

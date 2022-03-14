@@ -15,21 +15,21 @@ from blspy import G2Element
 
 from clvm_tools.binutils import assemble
 
-from chia.consensus.constants import ConsensusConstants
-from chia.types.announcement import Announcement
-from chia.types.blockchain_format.program import Program
-from chia.types.coin_record import CoinRecord
-from chia.types.coin_spend import CoinSpend
-from chia.types.condition_opcodes import ConditionOpcode
-from chia.types.full_block import FullBlock
-from chia.types.spend_bundle import SpendBundle
-from chia.util.errors import Err
-from chia.util.ints import uint32
+from profit.consensus.blockchain import ReceiveBlockResult
+from profit.consensus.constants import ConsensusConstants
+from profit.types.announcement import Announcement
+from profit.types.blockchain_format.program import Program
+from profit.types.coin_record import CoinRecord
+from profit.types.coin_spend import CoinSpend
+from profit.types.condition_opcodes import ConditionOpcode
+from profit.types.full_block import FullBlock
+from profit.types.spend_bundle import SpendBundle
+from profit.util.errors import Err
+from profit.util.ints import uint32
 from tests.block_tools import create_block_tools, test_constants
 from tests.util.keyring import TempKeyring
 
 from .ram_db import create_ram_blockchain
-from ...blockchain.blockchain_test_utils import _validate_and_add_block
 
 
 def cleanup_keyring(keyring: TempKeyring):
@@ -73,10 +73,11 @@ async def check_spend_bundle_validity(
     `SpendBundle`, and then invokes `receive_block` to ensure that it's accepted (if `expected_err=None`)
     or fails with the correct error code.
     """
-    connection, blockchain = await create_ram_blockchain(constants)
     try:
+        connection, blockchain = await create_ram_blockchain(constants)
         for block in blocks:
-            await _validate_and_add_block(blockchain, block)
+            received_block_result, err, fork_height, coin_changes = await blockchain.receive_block(block)
+            assert err is None
 
         additional_blocks = bt.get_consecutive_blocks(
             1,
@@ -86,14 +87,23 @@ async def check_spend_bundle_validity(
         )
         newest_block = additional_blocks[-1]
 
-        if expected_err is None:
-            await _validate_and_add_block(blockchain, newest_block)
-            coins_added = await blockchain.coin_store.get_coins_added_at_height(uint32(len(blocks)))
-            coins_removed = await blockchain.coin_store.get_coins_removed_at_height(uint32(len(blocks)))
+        received_block_result, err, fork_height, coin_changes = await blockchain.receive_block(newest_block)
+
+        if fork_height:
+            coins_added = await blockchain.coin_store.get_coins_added_at_height(uint32(fork_height + 1))
+            coins_removed = await blockchain.coin_store.get_coins_removed_at_height(uint32(fork_height + 1))
         else:
-            await _validate_and_add_block(blockchain, newest_block, expected_error=expected_err)
             coins_added = []
             coins_removed = []
+
+        if expected_err is None:
+            assert err is None
+            assert received_block_result == ReceiveBlockResult.NEW_PEAK
+            assert fork_height == len(blocks) - 1
+        else:
+            assert err == expected_err
+            assert received_block_result == ReceiveBlockResult.INVALID_BLOCK
+            assert fork_height is None
 
         return coins_added, coins_removed
 
