@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 
 UPDATE_POOL_INFO_INTERVAL: int = 3600
 UPDATE_POOL_FARMER_INFO_INTERVAL: int = 300
-UPDATE_HARVESTER_CACHE_INTERVAL: int = 90
+UPDATE_HARVESTER_CACHE_INTERVAL: int = 300
 
 """
 HARVESTER PROTOCOL (FARMER <-> HARVESTER)
@@ -685,7 +685,7 @@ class Farmer:
         time_slept: uint64 = uint64(0)
         refresh_slept = 0
         while not self._shut_down:
-            self.log.info("[debug] clear cache")
+            self.log.debug("[debug] clear cache")
             try:
                 if time_slept > self.constants.SUB_SLOT_TIME_TARGET:
                     now = time.time()

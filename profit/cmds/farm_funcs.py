@@ -265,8 +265,12 @@ async def summary(
                 total_plot_size_harvester = sum(map(lambda x: x["file_size"], plots["plots"]))
                 PlotStats.total_plot_size += total_plot_size_harvester
                 PlotStats.total_plots += len(plots["plots"])
+                farmer_keys_addresses: Dict[bytes, bytes32] = {}
                 for plot in plots["plots"]:
-                    ph = create_puzzlehash_for_pk(hexstr_to_bytes(plot["farmer_public_key"]))
+                    ph = farmer_keys_addresses.get(bytes(hexstr_to_bytes(plot["farmer_public_key"])))
+                    if ph is None:
+                        ph = create_puzzlehash_for_pk(hexstr_to_bytes(plot["farmer_public_key"]))
+                        farmer_keys_addresses.update({bytes(hexstr_to_bytes(plot["farmer_public_key"])): ph})
                     PlotStats.staking_addresses[ph] += 1
                 print(f"   {len(plots['plots'])} plots of size: {format_bytes(total_plot_size_harvester)}")
 
