@@ -53,7 +53,14 @@ const StyledSubTitle = styled.h3`
   color: rgb(31, 31, 31);
 `;
 
-const BugReport = styled.a`
+const ExchangeLink = styled.a`
+  position: absolute;
+  right: 0.5rem;
+  bottom: 1.5rem;
+  color: rgb(128, 160, 194);
+`;
+
+const BlockchainLink = styled.a`
   position: absolute;
   right: 0.5rem;
   bottom: 0.5rem;
@@ -70,7 +77,7 @@ const Spacer = styled.div`
   margin-bottom: 1rem;
 `;
 
-const url = 'https://www.profitcrypto.net';
+const url = 'https://profitcrypto.net';
 
 type Props = {
   version: string;
@@ -143,12 +150,18 @@ export default function About(props: Props) {
           )}
         </VersionsTable>
 
-        <BugReport
-          href="https://github.com/ProfitCrypto/profit-blockchain/issues"
+        <ExchangeLink
+          href="https://forkschiaexchange.com/"
           target="_blank"
         >
-          Report an issue
-        </BugReport>
+          Forks Chia Exchange
+        </ExchangeLink>
+        <BlockchainLink
+          href="https://chiaforksblockchain.com/"
+          target="_blank"
+        >
+          Blockchain DBs
+        </BlockchainLink>
         {'{{CSS}}'}
       </body>
     </html>

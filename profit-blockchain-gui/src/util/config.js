@@ -10,19 +10,13 @@ global.daemon_rpc_ws = `wss://${self_hostname}:45400`;
 global.cert_path = 'config/ssl/daemon/private_daemon.crt';
 global.key_path = 'config/ssl/daemon/private_daemon.key';
 
-function loadConfig(version) {
+function loadConfig(net) {
   try {
-    // finding the right config file uses this precedence
-    // 1) PROFIT_ROOT environment variable
-    // 2) version passed in and determined by the `profit version` call
-
-    // check if PROFIT_ROOT is set. it overrides everything else
-    console.log("version", version)
+    // check if PROFIT_ROOT is set. it overrides 'net'
     const config_root_dir =
       'PROFIT_ROOT' in process.env
         ? process.env.PROFIT_ROOT
-        : path.join(os.homedir(), '.profit', version);
-    console.log(config_root_dir);
+        : path.join(os.homedir(), '.profit', net);
     const config = yaml.load(
       fs.readFileSync(path.join(config_root_dir, 'config/config.yaml'), 'utf8'),
     );
