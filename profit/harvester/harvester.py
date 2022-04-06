@@ -119,7 +119,7 @@ class Harvester:
                         "file_size": plot_info.file_size,
                         "time_modified": plot_info.time_modified,
                         "farmer_public_key": plot_info.farmer_public_key,
-                        "farmer_puzzle_hash": puzzle_address,
+                        "farmer_puzzle_address": puzzle_address,
                     }
                 )
             self.log.debug(

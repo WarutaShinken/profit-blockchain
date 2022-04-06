@@ -1,5 +1,5 @@
 import sys
-import time, math
+import time
 from typing import Optional
 
 import click
@@ -88,7 +88,7 @@ def get_transactions_cmd(
     sys.stdout.close()
 
 
-@wallet_cmd.command("send", short_help="Send profit to another wallet")
+@wallet_cmd.command("send", short_help="Send Profit to another wallet")
 @click.option(
     "-wp",
     "--wallet-rpc-port",
@@ -98,7 +98,7 @@ def get_transactions_cmd(
 )
 @click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
 @click.option("-i", "--id", help="Id of the wallet to use", type=int, default=1, show_default=True, required=True)
-@click.option("-a", "--amount", help="How much profit to send, in PROFIT", type=str, required=True)
+@click.option("-a", "--amount", help="How much Profit to send, in PROFIT", type=str, required=True)
 @click.option(
     "-m",
     "--fee",
@@ -123,7 +123,7 @@ def send_cmd(
     asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, send))
 
 
-@wallet_cmd.command("send_from", short_help="Transfer all profit away from a specific puzzle hash")
+@wallet_cmd.command("send_from", short_help="Transfer all Profit away from a specific puzzle hash")
 @click.option(
     "-p",
     "--rpc-port",
@@ -144,8 +144,9 @@ def send_cmd(
 )
 @click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
 @click.option("-i", "--id", help="Id of the wallet to use", type=int, default=1, show_default=True, required=True)
-@click.option("-s", "--source", help="Address to send the PROFIT from", type=str, required=True)
-@click.option("-t", "--address", help="Address to send the PROFIT", type=str, required=True)
+@click.option("-s", "--source", help="Source address to send the PROFIT from", type=str, required=True)
+@click.option("-t", "--address", help="Target address that will receive the PROFIT", type=str, required=True)
+@click.option("-a", "--amount", help="How much Profit to send, in PROFIT", type=str, required=True)
 def send_from_cmd(
     rpc_port: Optional[int],
     wallet_rpc_port: Optional[int],
@@ -153,12 +154,13 @@ def send_from_cmd(
     id: int,
     source: str,
     address: str,
+    amount: str,
 ) -> None:
     import asyncio
 
     from .wallet_funcs import execute_with_wallet, send_from
 
-    extra_params = {"id": id, "source": source, "address": address, "rpc_port": rpc_port}
+    extra_params = {"id": id, "source": source, "address": address, "amount": amount, "rpc_port": rpc_port}
     asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, send_from))
 
 
@@ -235,26 +237,17 @@ async def do_recover_pool_nft(contract_hash: str, launcher_hash: str, fingerprin
     coin_records = await node_client.get_coin_records_by_puzzle_hash(contract_hash_bytes32, False)
 
     # expired coins
-    coins = [coin_record.coin.to_json_dict() for coin_record in coin_records if
-             coin_record.timestamp <= int(time.time()) - delay]
+    coins = [coin_record.coin for coin_record in coin_records if coin_record.timestamp <= int(time.time()) - delay]
     if not coins:
         print("no expired coins")
         return
-    print("found", len(coins), "expired coins, total amount:", sum(coin['amount'] for coin in coins))
-    (wallet_client_f, fingerprint) = await get_wallet(wallet_client, fingerprint=fingerprint)
-    tx = await wallet_client_f.recover_pool_nft(launcher_hash, contract_hash, coins)
-    FRAME = 128
-    TOTAL = math.ceil(len(tx['coin_solutions']) / FRAME)
-    print("tx num:", TOTAL)
-    for i in range(TOTAL):
-        _tx = {
-            'aggregated_signature': tx['aggregated_signature'],
-            'coin_spends': tx['coin_solutions'][i * FRAME: (i + 1) * FRAME]
-        }
-        await node_client.push_tx(SpendBundle.from_json_dict(_tx))
-        print("tx %d/ %d pushed" % (i + 1, TOTAL))
-    wallet_client.close()
-    node_client.close()
+    print("found", len(coins), "expired coins, total amount:", sum(coin.amount for coin in coins))
+    wallet_client_f, f = await get_wallet(wallet_client, fingerprint=fingerprint)
+
+    coins_dict_array = [coin.to_json_dict() for coin in coins]
+    tx = await wallet_client_f.recover_pool_nft(launcher_hash, contract_hash, coins_dict_array)
+    await node_client.push_tx(tx)
+    print("tx pushed")
 
 
 @wallet_cmd.command("recover_pool_nft", short_help="Recover coins in pool nft contract")
@@ -266,7 +259,7 @@ async def do_recover_pool_nft(contract_hash: str, launcher_hash: str, fingerprin
 )
 @click.option(
     "--launcher-hash",
-    help="Set the launcher hash, you should get it from profit wallet",
+    help="Set the launcher hash, you should get it from your Profit wallet",
     type=str,
     default=None,
 )

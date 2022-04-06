@@ -284,7 +284,7 @@ class WalletRpcClient(RpcClient):
     async def recover_pool_nft(self, launcher_hash: str, contract_hash: str, coins: List[Coin]) -> SpendBundle:
         return (
             await self.fetch(
-                "recover_pool_nft",
+                "pw_status",
                 {
                     "launcher_hash": launcher_hash,
                     "contract_hash": contract_hash,

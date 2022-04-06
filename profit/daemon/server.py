@@ -90,7 +90,6 @@ class PlotEvent(str, Enum):
 if getattr(sys, "frozen", False):
     name_map = {
         "profit": "profit",
-        "profit": "profit",
         "profit_wallet": "start_wallet",
         "profit_full_node": "start_full_node",
         "profit_harvester": "start_harvester",
