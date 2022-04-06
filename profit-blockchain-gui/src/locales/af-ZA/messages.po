@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/components/farm/FarmLatestBlockChallenges.tsx:39
 msgid "*Want to explore Profit’s blocks further? Check out <0>Profit Explorer</0> built by an open source developer."
-msgstr "*Wil jy dalk die Profit blokke verder wil ondersoek? Gaan kyk na <0>Profit Explorer<0>, gebou deur a 'n open source programmeerder."
+msgstr "*Wil jy dalk die Profit blokke verder wil ondersoek? Gaan kyk na <0>AllTheBlocks<0>, gebou deur a 'n open source programmeerder."
 
 #: src/components/plot/add/PlotAddNumberOfPlots.tsx:94
 #~ msgid "0 automatically chooses bucket count"
@@ -1643,7 +1643,7 @@ msgstr ""
 
 #: src/components/plot/add/PlotAddChooseSize.tsx:30
 #: src/components/plot/add/PlotAddChooseSize.tsx:74
-msgid "The minimum required size for mainnet is k=31"
+msgid "The minimum required size for mainnet is k=32"
 msgstr ""
 
 #: src/components/fullNode/FullNode.jsx:124

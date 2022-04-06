@@ -23,7 +23,7 @@ export default function Pool() {
       title={
         <>
           <Link to="/dashboard/pool" color="textPrimary">
-            <Trans>NFT Recovery</Trans>
+            <Trans>Pool</Trans>
           </Link>
           <PoolHeaderTarget />
         </>

@@ -8,8 +8,6 @@ const fs = require('fs');
 
 const PY_MAC_DIST_FOLDER = '../../../app.asar.unpacked/daemon';
 const PY_WIN_DIST_FOLDER = '../../../app.asar.unpacked/daemon';
-// const PY_MAC_DIST_FOLDER = '../../daemon';
-// const PY_WIN_DIST_FOLDER = '../../daemon';
 const PY_DIST_FILE = 'daemon';
 const PY_FOLDER = '../profit/daemon';
 const PY_MODULE = 'server'; // without .py suffix
@@ -41,7 +39,6 @@ const getScriptPath = (dist_file) => {
 };
 
 const getExecutablePath = (dist_file) => {
-  console.log("getExecutablePath", dist_file, process.platform)
   if (process.platform === 'win32') {
     return path.join(__dirname, PY_WIN_DIST_FOLDER, dist_file + '.exe');
   }
@@ -51,7 +48,6 @@ const getExecutablePath = (dist_file) => {
 const getProfitVersion = () => {
   let version = null;
   const exePath = getExecutablePath('profit');
-  console.log("exePath", exePath)
   // first see if we can get a profit exe in a standard location relative to where we are
   try {
     version = child_process
@@ -60,7 +56,6 @@ const getProfitVersion = () => {
       })
       .trim();
   } catch (e1) {
-    console.log("e1", e1)
     // that didn't work, let's try as if we're in the venv or profit is on the path
     try {
       version = child_process
@@ -69,7 +64,6 @@ const getProfitVersion = () => {
         })
         .trim();
     } catch (e2) {
-      console.log("e2", e2)
       // that didn't work either - give up
     }
   }
@@ -87,7 +81,7 @@ const startProfitDaemon = () => {
     try {
       console.log('Running python executable: ');
       const Process = child_process.spawn;
-      pyProc = new Process(script, [], processOptions);
+      pyProc = new Process(script, ["--wait-for-unlock"], processOptions);
     } catch (e) {
       console.log('Running python executable: Error: ');
       console.log('Script ' + script);
@@ -97,7 +91,7 @@ const startProfitDaemon = () => {
     console.log('Script ' + script);
 
     const Process = child_process.spawn;
-    pyProc = new Process('python', [script], processOptions);
+    pyProc = new Process('python', [script, "--wait-for-unlock"], processOptions);
   }
   if (pyProc != null) {
     pyProc.stdout.setEncoding('utf8');

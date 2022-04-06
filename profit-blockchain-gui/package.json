@@ -25,7 +25,7 @@
     "eslint": "eslint src/**/*.[t]s{,x}",
     "format": "prettier --write src/**/*.[jt]s{,x} && eslint --fix src/**/*.[jt]s{,x}",
     "lint": "tsc --noEmit && npm run eslint",
-    "activate_and_electron": "cd ../venv/Scripts&& activate&&cd ../../chia-blockchain-gui&& electron ."
+    "activate_and_electron": "cd ../venv/Scripts&& activate&&cd ../../profit-blockchain-gui&& electron ."
   },
   "dependencies": {
 	"@electron/remote": "^2.0.1",

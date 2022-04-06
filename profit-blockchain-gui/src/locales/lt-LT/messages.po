@@ -24,7 +24,7 @@ msgstr ""
 
 #: src/components/farm/FarmLatestBlockChallenges.tsx:64
 msgid "*Want to explore Profit’s blocks further? Check out <0>Profit Explorer</0> built by an open source developer."
-msgstr "*Norite sužinoti apie Profit blokus daugiau? Aplankykite <0>Profit Explorer</0> sukurta atviro kodo kūrėjo."
+msgstr "*Norite sužinoti apie Profit blokus daugiau? Aplankykite <0>AllTheBlocks</0> sukurta atviro kodo kūrėjo."
 
 #: src/components/plot/add/PlotAddNFT.tsx:127
 msgid "+ Add New Plot NFT"
@@ -1249,7 +1249,7 @@ msgid "Not found Plots"
 msgstr ""
 
 #: src/components/farm/FarmManageFarmingRewards.tsx:186
-msgid "Note that this does not change your pooling payout addresses. This only affects old format plots, and the 0.25XCH reward for pooling plots."
+msgid "Note that this does not change your pooling payout addresses. This only affects old format plots, and the 0.25PROFIT reward for pooling plots."
 msgstr ""
 
 #: src/components/plotNFT/PlotExternalNFTCard.tsx:115
@@ -2023,7 +2023,7 @@ msgstr ""
 
 #: src/components/plot/add/PlotAddChooseSize.tsx:34
 #: src/components/plot/add/PlotAddChooseSize.tsx:91
-msgid "The minimum required size for mainnet is k=31"
+msgid "The minimum required size for mainnet is k=32"
 msgstr ""
 
 #: src/components/fullNode/card/FullNodeCardStatus.tsx:39

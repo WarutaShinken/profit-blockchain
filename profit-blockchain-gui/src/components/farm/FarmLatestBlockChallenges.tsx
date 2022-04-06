@@ -65,7 +65,7 @@ export default function FarmLatestBlockChallenges() {
           *Want to explore Profit’s blocks further? Check out{' '}
           <Link
             color="primary"
-            href="https://alltheblocks.net"
+            href="https://alltheblocks.net/profit"
             target="_blank"
           >
             Profit Explorer

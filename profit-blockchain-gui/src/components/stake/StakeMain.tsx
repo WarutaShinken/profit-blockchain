@@ -2,22 +2,24 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useToggle } from 'react-use';
-import { Trans } from '@lingui/macro';
 
 import { Box, Paper } from '@material-ui/core';
-import { Button, Menu, MenuItem, Typography, Grid } from '@material-ui/core';
+import { Button, Menu, MenuItem, Typography } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
 
-import { Flex, Form, InputBase, Loading, More, Amount } from '@profit/core';
+import { Flex, Form, InputBase, Loading } from '@profit/core';
 import styled from 'styled-components';
 
 import isNumeric from 'validator/es/lib/isNumeric';
 import { get_plots, get_coin_records_by_puzzle_hash } from '../../modules/fullnodeMessages';
 import { send_transaction, send_transaction_multi } from '../../modules/message';
-import { profit_to_mojo, mojo_to_profit} from '../../util/profit';
+import { profit_to_mojo, mojo_to_profit } from '../../util/profit';
 import { address_to_puzzle_hash } from '../pool/address_to_puzzle_hash';
 import type { RootState } from '../../modules/rootReducer';
 import usePlots from '../../hooks/usePlots';
+import { el } from "make-plural";
+import useLocale from '../../hooks/useLocale';
+import { defaultLocale } from '../../config/locales';
 
 
 const StyledInputBase = styled(InputBase)`
@@ -52,7 +54,7 @@ export default function StakeMain() {
         let plots = data.plots;
   
         let publickey = plots.map((x) => {
-          return x["farmer_public_key"] + "&" + x["farmer_puzzle_hash"];
+          return x["farmer_public_key"] + "&" + x["farmer_puzzle_address"];
         });
   
         let plotValues: string[] = Array.from(new Set(publickey))
@@ -76,7 +78,7 @@ export default function StakeMain() {
       let plots = data.plots;
 
       let publickey = plots.map((x) => {
-        return x["farmer_public_key"] + "&" + x["farmer_puzzle_hash"];
+        return x["farmer_public_key"] + "&" + x["farmer_puzzle_address"];
       });
 
       let plotValues: string[] = Array.from(new Set(publickey))
@@ -165,7 +167,6 @@ export default function StakeMain() {
     //Stake
     //=========================================================================
     //=========================================================================
-    
     type FormData = {
       amount: string;
     };
@@ -177,16 +178,15 @@ export default function StakeMain() {
         },
     });
 
-    async function handleStake(data: FormData) {
+    async function handleStake(values: FormData) {
       if (plotValue.startsWith("---")) {
         alert("Must select a farmer_public_key!!!");
         return;
       }
 
-
-      let amount = data.amount.trim();
-      
-      //console.log(amount)
+      let amount = document.stakeForm.amount.value.trim();
+      console.log(values)
+      console.log(amount)
 
       if (!isNumeric(amount)) {
         alert("Please enter a valid numeric amount!!!");
@@ -201,7 +201,6 @@ export default function StakeMain() {
 
       //console.log(amountValue);
       //console.log(address);
-      
       try {
         let result = await dispatch(send_transaction(1, amountValue, 0, address));
         console.log(result);
@@ -216,21 +215,44 @@ export default function StakeMain() {
     //Withdraw
     //=========================================================================
     //=========================================================================
-    
     const wallet = useSelector((state: RootState) =>
       state.wallet_state.wallets?.find((item) => item.id === 1),
     );
 
-    async function handleWithdraw() {
+    async function handleWithdraw(values: FormData) {
       if (!wallet) {
         console.log("get wallet failed");
         return;
       }
 
+      let inputAmount = document.withdrawForm.amount.value.trim();
+      console.log(values)
+      console.log(inputAmount)
+      
+      if (!isNumeric(inputAmount)) {
+        alert("Please enter a valid numeric amount!!!");
+        return;
+      }
+      const inputValue = Number.parseFloat(profit_to_mojo(inputAmount));
+
+      let newCoins = stakeCoins.sort(function(a, b){return b.amount - a.amount})
+
       var totalAmount: number = 0
-      for(let record of stakeCoins) {
-        var amount: number = record.amount
+      var spendCoins = new Array()
+      for(let record of newCoins) {
+        spendCoins.push(record)
+        var amount: number = record.amount  
         totalAmount += amount
+
+        if (totalAmount >= inputValue) {
+          break
+        }
+      }
+
+      let change = totalAmount - inputValue
+      if (change < 0) {
+        alert("Not enough balance in staking address!!!");
+        return;
       }
 
       const { address } = wallet;
@@ -241,13 +263,30 @@ export default function StakeMain() {
         // console.log(totalAmount);
         // console.log(puzzlehash);
 
-        let result = await dispatch(send_transaction_multi(stakeCoins, totalAmount, puzzlehash));
+        let additions = [{
+            amount: inputValue,
+            puzzle_hash: puzzlehash
+        }]
+
+        if (change > 0) {
+          additions.push({
+            amount: change,
+            puzzle_hash: stakingPuzzlehash
+          })
+        }
+
+        console.log(spendCoins)
+        console.log(additions)
+
+        let result = await dispatch(send_transaction_multi(spendCoins, additions));
         if (result.success) {
           alert("success")
         } else {
+          console.log("reslue.error")
           alert(result.error)
         }
       } catch (error) {
+        console.log("error")
         alert(error)
       }
     }
@@ -264,7 +303,9 @@ export default function StakeMain() {
 
 
 
-          <Flex>          
+
+
+          <Flex>
             <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} endIcon={<ExpandMore />}>
               {plotValue.split('&')[0] + "(" + plotValue.split('&')[2] + ")"}
             </Button>
@@ -282,32 +323,37 @@ export default function StakeMain() {
           </Flex>
 
 
+
+
           <Typography variant="body1" color="textSecondary"  dangerouslySetInnerHTML={{__html: searchResult}}>
           </Typography>
 
 
-          <Form methods={methods} onSubmit={handleStake}>          
-            <Grid spacing={2} container>
-            
-             <Grid xs={12} item>
-               <Amount id="filled-secondary" variant="filled" color="secondary" name="amount" label={<Trans>Stake Amount</Trans>} fullWidth />
-             </Grid>  
-                        
-             <Grid xs={12} item>
-             	<Flex justifyContent="flex-end" gap={1}>             
-                 <Button variant="contained" color="primary" type="submit"> Stake Coins </Button>
-            	</Flex>
-             </Grid>
-             
-           </Grid>           
+
+
+          <Form name="stakeForm" methods={methods} onSubmit={handleStake}>
+          <Paper elevation={0} variant="outlined">
+              <Flex alignItems="center" gap={1}>
+                <Box/>
+                <StyledInputBase name="amount" placeholder='Stake Amount' fullWidth/>
+
+                <Button variant="contained" color="primary" type="submit"> Stake </Button>
+              </Flex>
+          </Paper>          
           </Form>
 
 
-          <Flex alignItems="center" justifyContent="flex-end" gap={1}>
-          <Button variant="contained" color="primary" onClick={handleWithdraw}> Withdraw Staked Coins </Button>
-          </Flex>          
-                   
+          <Form name="withdrawForm" methods={methods} onSubmit={handleWithdraw}>
+          <Paper elevation={0} variant="outlined">
+              <Flex alignItems="center" gap={1}>
+                <Box/>
+                <StyledInputBase name="amount" placeholder='Withdraw Amount' fullWidth/>
 
-       </Flex>
+                <Button variant="contained" color="primary" type="submit"> Withdraw </Button>
+              </Flex>
+          </Paper>          
+          </Form>
+
+        </Flex>
     );
 }

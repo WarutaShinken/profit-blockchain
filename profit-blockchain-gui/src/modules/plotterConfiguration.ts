@@ -5,8 +5,8 @@ import Plotter, { PlotterMap } from '../types/Plotter';
 export const defaultPlotter = (): Plotter => {
   return {
     displayName: "Profit Proof of Space",
-    options: optionsForPlotter(PlotterName.PROFITPOS),
-    defaults: defaultsForPlotter(PlotterName.PROFITPOS),
+    options: optionsForPlotter(PlotterName.CHIAPOS),
+    defaults: defaultsForPlotter(PlotterName.CHIAPOS),
     installInfo: { installed: true },
   }
 }
@@ -18,7 +18,7 @@ type PlotterConfigurationState = {
 
 const initialState: PlotterConfigurationState = {
   availablePlotters: {
-    [PlotterName.PROFITPOS]: defaultPlotter(),
+    [PlotterName.CHIAPOS]: defaultPlotter(),
   },
   fetchedPlotters: false,
 }
